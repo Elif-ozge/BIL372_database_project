@@ -31,12 +31,6 @@ conn = mysql.connector.connect(
 cursor = conn.cursor()
 
 # Tabloları oluşturma
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS RoomImages (
-    ImgID INT  PRIMARY KEY,
-    ImgData TEXT
-)
-""")
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS RoomType (
@@ -53,6 +47,15 @@ CREATE TABLE IF NOT EXISTS Otel (
     OtelName TEXT,
     OtelLocation TEXT,
     OtelType INT
+)
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS RoomImages (
+    ImgID INT  PRIMARY KEY,
+    ImgData TEXT,
+    OtelID INT,
+    FOREIGN KEY (OtelID) REFERENCES Otel(OtelID)
 )
 """)
 
@@ -140,9 +143,9 @@ faker = Faker()
 
 # Otel verilerini ekleme
 otels = [
-    (1, "Dubai Luxury", "Dubai", 6),
-    (2, "Maldives Paradise", "Maldives", 3),
-    (3, "Swiss Comfort", "Switzerland", 4)
+    (1, "Dubai Luxury", "Dubai", 10),
+    (2, "Maldives Paradise", "Maldives", 7),
+    (3, "Swiss Comfort", "Switzerland", 8)
 ]
 
 # distinct valueları insert ediyoruz database'e, aynı olmaların engelleyerek
@@ -159,14 +162,28 @@ cursor.executemany("INSERT IGNORE INTO RoomType VALUES (%s, %s, %s, %s)", room_t
 conn.commit()  # Commit here
 
 
+"""
+    TODO:
+        gpt'ye random 9 tane oda resmi ürettirilip burda direk image path'i verilecek random resim generate etmek yerine,
+        imagelerı githubda repoya ekleriz zaten,
+        buraya da hardcoded value olarak veririz 
+        şimdilik ellemedim gptye resim ürettirme kısmını, random üretiliyor resimler
+"""
 # RoomImages verilerini ekleme
 room_images = []
-for i in range(3):  # 100 adet oda görseli oluştur
-    img_data = faker.file_path(extension="jpg")
-    room_images.append((i,img_data))
+hotel_ids = [1, 2, 3]  # sırasıyla dubai, maldives, switzerland
 
-cursor.executemany("INSERT IGNORE INTO RoomImages (ImgID,ImgData) VALUES (%s,%s)", room_images)
-conn.commit()  # Commit here
+for hotel_id in hotel_ids:
+    for i in range(3):  # 3 images per hotel
+        img_data = faker.file_path(extension="jpg")
+        img_id = (hotel_id - 1) * 3 + i  # Generate a unique image ID for each image
+        room_images.append((img_id, img_data, hotel_id))  # Add to the list with associated hotel ID
+
+cursor.executemany("INSERT IGNORE INTO RoomImages (ImgID, ImgData, OtelID) VALUES (%s, %s, %s)", room_images)
+
+# Commit the changes to the database
+conn.commit()
+
 
 
 # Rooms verilerini ekleme
@@ -314,10 +331,43 @@ cursor.executemany(
     """,
     payments
 )
-
-
 # Commit and close
 conn.commit()
+
+
+# Retrieve ReservationID values from Reservations table
+cursor.execute("SELECT ReservationID FROM Reservations")
+reservation_ids = [row[0] for row in cursor.fetchall()]
+
+# Generate random reviews
+reviews = []
+for _ in range(50):  # Example: generate 50 reviews
+    reservation_id = random.choice(reservation_ids)  # Select a random reservation ID
+    rating = random.randint(1, 5)  # Generate a random rating between 1 and 5
+    comment = faker.sentence(nb_words=10)  # Generate a random comment (a sentence with 10 words)
+    review_date = faker.date_between(start_date='-1y', end_date='today')  # Generate a random date within the last year
+
+    reviews.append((reservation_id, rating, comment, review_date))
+
+# Insert random reviews into the Reviews table
+cursor.executemany(
+    """
+    INSERT INTO Reviews (ReservationID, Rating, Comment, ReviewDate)
+    VALUES (%s, %s, %s, %s)
+    """,
+    reviews
+)
+
+# Commit changes to the database
+conn.commit()
+
+# Close the connection
+conn.close()
+
+print("Reviews table populated with random data.")
+
+
+
 conn.close()
 
 print("MySQL database tables created and populated with random data.")
