@@ -6,6 +6,29 @@ import random
 
 import mysql.connector
 
+"""
+    TODO: 
+        // burası genel TODO, aklıma gelenleri yazıcam:
+        
+        - her seferinde kodu çalıştırıp table oluşturduğumuzda rastgelelik olduğu için farklı sayılarda
+          dağılmış oda tipleri vs olabiliyor. yani hepimizin bilgisayarındaki database aynı olmaz böyle bir kodu
+          ayrı ayrı çalıştırmaya kalktığımızda. bu durum şuanlık sorun teşkil ediyor mu emin değilim tek birinin
+          bilgisayarından local olarak demo yapılacak ve teslim edilecekse sorun olmamalı, ama eğer web sitesiyle
+          birlikte gerçek zamanlı düzgün erişim istiyorsa hoca bunu güncellememiz gerekebilir. datanın dağılım oranını
+          veya direk datalarun sayısını hardcoded olarak verebiliriz. hangisi mantıklı olur şuanlık bilemedim o yüzden 
+          böyle bırakıyorum.
+          
+        - bu sadece table'ları oluşturan kod dosyası, tamamen düzenlendiğinde bir kez çalıştırılıp bırakılacak. kalan
+          logici implement etmek için ayrıca bi dosya açarız yine. kalan logicten kastım da yeni rezervasyon durumunda
+          table'a yapılacak olan ekleme ve çıkarmalar güncellemeler vs. 
+          
+        - son aklıma gelen de, projenin readme file'ına, kodu çalıştırmadan önce mysql kurulup hotel_chain diye bir
+          schema üretilmesi gerektiğini yazsak iyi olur açık ve net olması için ve hoca denerse sorun çıkmasın en 
+          azından her şeyin açıklaması olsun. 
+"""
+
+
+
 try:
     # try if we can connect the database
     # if can, close the connection immediately, this is just for test purposes
@@ -110,9 +133,11 @@ CREATE TABLE IF NOT EXISTS Reservations (
     TotalPrice INT,
     BaseReservation TEXT,
     AccommodationTypeID INT,
+    OtelID INT,
     FOREIGN KEY (RoomID) REFERENCES Rooms(RoomID),
     FOREIGN KEY (GuestID) REFERENCES Guests(GuestID),
-    FOREIGN KEY (AccommodationTypeID) REFERENCES AccommodationType(AccommodationTypeID)
+    FOREIGN KEY (AccommodationTypeID) REFERENCES AccommodationType(AccommodationTypeID),
+    FOREIGN KEY (OtelID) REFERENCES Otel(OtelID)
 )
 """)
 cursor.execute("""
@@ -164,10 +189,9 @@ conn.commit()  # Commit here
 
 """
     TODO:
-        gpt'ye random 9 tane oda resmi ürettirilip burda direk image path'i verilecek random resim generate etmek yerine,
-        imagelerı githubda repoya ekleriz zaten,
-        buraya da hardcoded value olarak veririz 
-        şimdilik ellemedim gptye resim ürettirme kısmını, random üretiliyor resimler
+        - gpt'ye random 9 tane oda resmi ürettirilip burda direk image path'i verilecek random resim generate etmek yerine,
+        - imagelerı githubda repoya ekleriz zaten, buraya da hardcoded value olarak veririz 
+        - şimdilik ellemedim gptye resim ürettirme kısmını, random şuanlık üretiliyor resimler
 """
 # RoomImages verilerini ekleme
 room_images = []
@@ -249,8 +273,18 @@ cursor.executemany("INSERT IGNORE INTO GuestType (GuestTypeID, Type) VALUES (%s,
 
 
 # Guests tablosunu doldur
+
+cursor.execute("select count(*)*2 from rooms where roomtypeid=1 and status=1 group by roomtypeid;")
+guest_number_1 = cursor.fetchone()[0]
+cursor.execute("select count(*)*3 from rooms where roomtypeid=2 and status=1 group by roomtypeid;")
+guest_number_2 = cursor.fetchone()[0]
+cursor.execute("select count(*)*4 from rooms where roomtypeid=3 and status=1 group by roomtypeid;")
+guest_number_3 = cursor.fetchone()[0]
+
+guest_number = guest_number_1 + guest_number_2 + guest_number_3
+print(guest_number)
 guests = []
-for _ in range(100):  # Örnek olarak 100 misafir oluştur
+for _ in range(guest_number):  # Örnek olarak 100 misafir oluştur
     name = faker.name()               # Rastgele isim
     email = faker.email()             # Rastgele e-posta
     phone = faker.phone_number()      # Rastgele telefon numarası
@@ -269,8 +303,10 @@ cursor.executemany(
 reservations = []
 
 # Rooms ve Guests tablolarından mevcut ID'leri al
-cursor.execute("SELECT RoomID FROM Rooms")
-room_ids = [row[0] for row in cursor.fetchall()]
+cursor.execute("SELECT RoomID, OtelID FROM Rooms")
+rooms = cursor.fetchall()  # RoomID ve OtelID'leri içeren liste
+room_ids = [row[0] for row in rooms]
+otel_ids = {row[0]: row[1] for row in rooms}  # RoomID'den OtelID'ye harita oluştur
 
 cursor.execute("SELECT GuestID FROM Guests")
 guest_ids = [row[0] for row in cursor.fetchall()]
@@ -278,11 +314,18 @@ guest_ids = [row[0] for row in cursor.fetchall()]
 cursor.execute("SELECT AccommodationTypeID FROM AccommodationType")
 accommodation_type_ids = [row[0] for row in cursor.fetchall()]
 
+
+cursor.execute("select count(*) from rooms where status=1;") # occupied odaların sayısını tutucaz, rezervasyon sayısı için
+reservation_number = cursor.fetchone()[0]
+
 # Rastgele rezervasyonlar oluştur
-for _ in range(100):  # Örnek olarak 50 rezervasyon oluştur
+for _ in range(reservation_number):  # Örnek olarak 100 rezervasyon oluştur
     room_id = random.choice(room_ids)  # Rastgele oda seç
     guest_id = random.choice(guest_ids)  # Rastgele misafir seç
     accommodation_type_id = random.choice(accommodation_type_ids)  # Rastgele konaklama tipi seç
+
+    # RoomID'den OtelID'yi al
+    otel_id = otel_ids[room_id]
 
     # Rastgele giriş ve çıkış tarihleri
     checkin_date = faker.date_between(start_date='-1y', end_date='today')  # Geçen yıldan bugüne kadar rastgele tarih
@@ -295,16 +338,17 @@ for _ in range(100):  # Örnek olarak 50 rezervasyon oluştur
     base_reservation = faker.sentence(nb_words=5)
 
     reservations.append(
-        (room_id, guest_id, checkin_date, checkout_date, total_price, base_reservation, accommodation_type_id))
+        (room_id, guest_id, checkin_date, checkout_date, total_price, base_reservation, accommodation_type_id, otel_id))
 
 # Reservations tablosuna verileri ekle
 cursor.executemany(
     """
-    INSERT INTO Reservations (RoomID, GuestID, DateCheckin, DateCheckout, TotalPrice, BaseReservation, AccommodationTypeID)
-    VALUES (%s, %s, %s, %s, %s, %s, %s)
+    INSERT INTO Reservations (RoomID, GuestID, DateCheckin, DateCheckout, TotalPrice, BaseReservation, AccommodationTypeID, OtelID)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     """,
     reservations
 )
+
 
 # Payments tablosunu doldur
 payments = []
@@ -313,8 +357,20 @@ payments = []
 cursor.execute("SELECT ReservationID FROM Reservations")
 reservation_ids = [row[0] for row in cursor.fetchall()]
 
+
+"""
+    TODO:
+        - reservation idler arasından random seçim yapılıyor AMA sayı aynı olsa da her rezervasyon için ödeme olmak 
+          zorunda burdaki o random kısmının kaldırılıp, her reservation üzerinde iterate edildiğinden emin olunması 
+          lazım - kısaca rastgelelik kaldırılacak
+        - bir de oda tipine göre ödemeler sabit aslında, amount'un buna göre belirlenmesi gerekli. konum ve oda tipine
+          göre fiyatın çekilip yansıtılması lazım, o yüzden amount'taki rastgelelik de kaldırılacak
+        - son olarak her rezervasyon için ödeme tarihinin checkin date'ten önce olduğunun kontrolü yapılmalı ödeme
+          olmadan checkin olmaz çünkü
+"""
+
 # Rastgele ödemeler oluştur
-for _ in range(50):  # Örnek olarak 50 ödeme oluştur
+for _ in range(reservation_number):  # rezervasyon sayısı kadar ödeme olmak zorunda
     reservation_id = random.choice(reservation_ids)  # Rastgele bir rezervasyon seç
     amount = random.randint(50, 2000)  # Ödeme miktarı (50-2000 arası)
     payment_date = faker.date_between(start_date='-1y', end_date='today')  # Ödeme tarihi
@@ -341,11 +397,13 @@ reservation_ids = [row[0] for row in cursor.fetchall()]
 
 # Generate random reviews
 reviews = []
-for _ in range(50):  # Example: generate 50 reviews
+cursor.execute("select min(datecheckin)  from reservations;")
+min_date = cursor.fetchone()[0] # en erken rezervasyonu tutuyor
+for _ in range(50):  # Example: generate 50 reviews sayısı fark etmiyo şuanlık sanırım
     reservation_id = random.choice(reservation_ids)  # Select a random reservation ID
     rating = random.randint(1, 5)  # Generate a random rating between 1 and 5
     comment = faker.sentence(nb_words=10)  # Generate a random comment (a sentence with 10 words)
-    review_date = faker.date_between(start_date='-1y', end_date='today')  # Generate a random date within the last year
+    review_date = faker.date_between(start_date='-1y', end_date=min_date-timedelta(days=1))  # en erken rezervasyondan önce oluyor ödemeler !!
 
     reviews.append((reservation_id, rating, comment, review_date))
 
