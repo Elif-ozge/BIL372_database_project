@@ -45,6 +45,14 @@ def get_rooms_by_hotel(hotel_id):
     return jsonify(rooms)
 
 # 3. Make a reservation
+
+"""
+    TODO:
+        - Burda rezervasyon yapıldığında RoomID aracılığıyla room.status=1'e çevirilmeli oda available değil anlamında
+        - Payment ile ilişkilendirmemiz gerekecek
+        - Yeni rezervasyonda guestid'nin atanması falan lazım guest bilgilerini nasıl aktarıcaz ordan?
+"""
+
 @app.route('/reservations', methods=['POST'])
 def make_reservation():
     data = request.json
@@ -68,6 +76,7 @@ def make_reservation():
         conn.close()
     return jsonify(response)
 
+
 # 4. View a guest's reservations
 @app.route('/guests/<int:guest_id>/reservations', methods=['GET'])
 def get_guest_reservations(guest_id):
@@ -87,6 +96,11 @@ def get_guest_reservations(guest_id):
     return jsonify(reservations)
 
 # 5. Cancel a reservation
+"""
+    TODO:
+        - rezervasyon silindiğinde payment bilgisi vardıysa onun da silinmesi lazım
+        - aynı zamanda rezerve edilmiş olan odanın tekrar status=0 yani müsait olarak güncellenmesi lazım
+"""
 @app.route('/reservations/<int:reservation_id>', methods=['DELETE'])
 def cancel_reservation(reservation_id):
     conn = get_db_connection()
@@ -125,6 +139,12 @@ def check_room_availability():
     return jsonify(available_rooms)
 
 # 7. Submit a review
+
+"""
+    TODO:
+        - burda yine insert işlemi için reservationid rating comment reviewdate gibi bilgilerin frontend'den çekilmesi
+        lazım, tam olarak nasıl implement edilir bu kısıma emin değilim.
+"""
 @app.route('/reviews', methods=['POST'])
 def submit_review():
     data = request.json
