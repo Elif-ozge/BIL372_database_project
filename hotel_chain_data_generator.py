@@ -35,7 +35,7 @@ try:
     conn = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="Alltoowell13/",
+        password="***", # append your own password
         database="hotel_chain"
     )
     print("Database connection successful!")
@@ -48,7 +48,7 @@ except mysql.connector.Error as err:
 conn = mysql.connector.connect(
     host="localhost",      # MySQL sunucu adresi (örneğin: "127.0.0.1")
     user="root",           # MySQL kullanıcı adı
-    password="Alltoowell13/",   # MySQL kullanıcı şifresi
+    password="**",   # append your mysql user password
     database="hotel_chain" # Kullanılacak veritabanı adı
 )
 cursor = conn.cursor()
@@ -130,7 +130,6 @@ CREATE TABLE IF NOT EXISTS Reservations (
     GuestID INT,
     DateCheckin DATE,
     DateCheckout DATE,
-    TotalPrice INT,
     BaseReservation TEXT,
     AccommodationTypeID INT,
     OtelID INT,
@@ -331,20 +330,17 @@ for _ in range(reservation_number):  # Örnek olarak 100 rezervasyon oluştur
     checkin_date = faker.date_between(start_date='-1y', end_date='today')  # Geçen yıldan bugüne kadar rastgele tarih
     checkout_date = checkin_date + timedelta(days=random.randint(1, 14))  # 1-14 gün sonrasına çıkış tarihi
 
-    # Rastgele fiyat hesapla (örnek olarak 100-2000 arasında rastgele fiyat)
-    total_price = random.randint(100, 2000)
-
     # Rastgele base reservation metni (örnek veri)
     base_reservation = faker.sentence(nb_words=5)
 
     reservations.append(
-        (room_id, guest_id, checkin_date, checkout_date, total_price, base_reservation, accommodation_type_id, otel_id))
+        (room_id, guest_id, checkin_date, checkout_date, base_reservation, accommodation_type_id, otel_id))
 
 # Reservations tablosuna verileri ekle
 cursor.executemany(
     """
-    INSERT INTO Reservations (RoomID, GuestID, DateCheckin, DateCheckout, TotalPrice, BaseReservation, AccommodationTypeID, OtelID)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    INSERT INTO Reservations (RoomID, GuestID, DateCheckin, DateCheckout, BaseReservation, AccommodationTypeID, OtelID)
+    VALUES (%s, %s, %s, %s, %s, %s, %s)
     """,
     reservations
 )
@@ -354,26 +350,18 @@ cursor.executemany(
 payments = []
 
 # Reservations tablosundan mevcut ReservationID'leri al
-cursor.execute("SELECT ReservationID FROM Reservations")
-reservation_ids = [row[0] for row in cursor.fetchall()]
+cursor.execute("select reservationid, (datecheckout-datecheckin)*price as PaymentAmount, datecheckin from rooms, reservations where rooms.roomid=reservations.roomid order by reservationid;")
+reservation_payments = cursor.fetchall()
 
-
-"""
-    TODO:
-        - reservation idler arasından random seçim yapılıyor AMA sayı aynı olsa da her rezervasyon için ödeme olmak 
-          zorunda burdaki o random kısmının kaldırılıp, her reservation üzerinde iterate edildiğinden emin olunması 
-          lazım - kısaca rastgelelik kaldırılacak
-        - bir de oda tipine göre ödemeler sabit aslında, amount'un buna göre belirlenmesi gerekli. konum ve oda tipine
-          göre fiyatın çekilip yansıtılması lazım, o yüzden amount'taki rastgelelik de kaldırılacak
-        - son olarak her rezervasyon için ödeme tarihinin checkin date'ten önce olduğunun kontrolü yapılmalı ödeme
-          olmadan checkin olmaz çünkü
-"""
 
 # Rastgele ödemeler oluştur
-for _ in range(reservation_number):  # rezervasyon sayısı kadar ödeme olmak zorunda
-    reservation_id = random.choice(reservation_ids)  # Rastgele bir rezervasyon seç
-    amount = random.randint(50, 2000)  # Ödeme miktarı (50-2000 arası)
-    payment_date = faker.date_between(start_date='-1y', end_date='today')  # Ödeme tarihi
+for i in range(reservation_number):  # rezervasyon sayısı kadar ödeme olmak zorunda
+    reservation_id = reservation_payments[i][0]  # ith rezervasyon id yi al
+
+    amount = reservation_payments[i][1]  # Ödeme miktarı (50-2000 arası)
+    payment_date = faker.date_between(start_date='-1y', end_date=reservation_payments[i][2])  # Ödeme tarihi checkin date'ten önce olcak
+
+    # alttakiler random olabilir bişey fark etmiyor
     payment_method = random.choice(["Credit Card", "Cash", "Bank Transfer", "Mobile Payment"])  # Rastgele ödeme yöntemi
     status = random.choice([0, 1])  # Ödeme durumu: 0 = Beklemede, 1 = Tamamlandı
 
@@ -397,7 +385,7 @@ reservation_ids = [row[0] for row in cursor.fetchall()]
 
 # Generate random reviews
 reviews = []
-cursor.execute("select min(datecheckin)  from reservations;")
+cursor.execute("select min(datecheckin) from reservations;")
 min_date = cursor.fetchone()[0] # en erken rezervasyonu tutuyor
 for _ in range(50):  # Example: generate 50 reviews sayısı fark etmiyo şuanlık sanırım
     reservation_id = random.choice(reservation_ids)  # Select a random reservation ID
