@@ -277,11 +277,11 @@ cursor.executemany("INSERT IGNORE INTO GuestType (GuestTypeID, Type) VALUES (%s,
 
 # Guests tablosunu doldur
 
-cursor.execute("select count(*)*2 from rooms where roomtypeid=1 and status=1 group by roomtypeid;")
+cursor.execute("select count(*)*2 from Rooms where roomtypeid=1 and status=1 group by roomtypeid;")
 guest_number_1 = cursor.fetchone()[0]
-cursor.execute("select count(*)*3 from rooms where roomtypeid=2 and status=1 group by roomtypeid;")
+cursor.execute("select count(*)*3 from Rooms where roomtypeid=2 and status=1 group by roomtypeid;")
 guest_number_2 = cursor.fetchone()[0]
-cursor.execute("select count(*)*4 from rooms where roomtypeid=3 and status=1 group by roomtypeid;")
+cursor.execute("select count(*)*4 from Rooms where roomtypeid=3 and status=1 group by roomtypeid;")
 guest_number_3 = cursor.fetchone()[0]
 
 guest_number = guest_number_1 + guest_number_2 + guest_number_3
@@ -318,7 +318,7 @@ cursor.execute("SELECT AccommodationTypeID FROM AccommodationType")
 accommodation_type_ids = [row[0] for row in cursor.fetchall()]
 
 
-cursor.execute("select count(*) from rooms where status=1;") # occupied odaların sayısını tutucaz, rezervasyon sayısı için
+cursor.execute("select count(*) from Rooms where status=1;") # occupied odaların sayısını tutucaz, rezervasyon sayısı için
 reservation_number = cursor.fetchone()[0]
 
 # Rastgele rezervasyonlar oluştur
@@ -354,7 +354,7 @@ cursor.executemany(
 payments = []
 
 # Reservations tablosundan mevcut ReservationID'leri al
-cursor.execute("select reservationid, (datecheckout-datecheckin)*price as PaymentAmount, datecheckin from rooms, reservations where rooms.roomid=reservations.roomid order by reservationid;")
+cursor.execute("select reservationid, (datecheckout-datecheckin)*price as PaymentAmount, datecheckin from Rooms, Reservations where Rooms.roomid=Reservations.roomid order by ReservationID;")
 reservation_payments = cursor.fetchall()
 
 
@@ -389,7 +389,7 @@ reservation_ids = [row[0] for row in cursor.fetchall()]
 
 # Generate random reviews
 reviews = []
-cursor.execute("select min(datecheckin) from reservations;")
+cursor.execute("select min(datecheckin) from Reservations;")
 min_date = cursor.fetchone()[0] # en erken rezervasyonu tutuyor
 for _ in range(50):  # Example: generate 50 reviews sayısı fark etmiyo şuanlık sanırım
     reservation_id = random.choice(reservation_ids)  # Select a random reservation ID

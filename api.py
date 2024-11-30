@@ -1,5 +1,6 @@
-from flask import Flask, request, jsonify
+from flask import Flask, render_template, request, jsonify
 import mysql.connector
+import os
 
 # have flask downloaded
 
@@ -8,13 +9,19 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return 'home page'
+    return render_template('home.html')
+
+
+# Route for the booking page
+@app.route('/booking')
+def booking():
+    return render_template('booking.html')  # Render booking.html
 
 # Database connection
 db_config = {
     "host": "localhost",
     "user": "root",
-    "password": "Alltoowell13/",  # Replace with your MySQL password
+    "password": "***",  # Replace with your MySQL password
     "database": "hotel_chain"
 }
 
@@ -23,7 +30,7 @@ def get_db_connection():
 
 # API Endpoints
 
-# 1. Get all hotels
+# 1. Get all hotels (home page)
 @app.route('/hotels', methods=['GET'])
 def get_hotels():
     conn = get_db_connection()
@@ -33,7 +40,7 @@ def get_hotels():
     conn.close()
     return jsonify(hotels)
 
-# 2. Get rooms by hotel
+# 2. Get rooms by hotel (home page)
 @app.route('/hotels/<int:hotel_id>/rooms', methods=['GET'])
 def get_rooms_by_hotel(hotel_id):
     conn = get_db_connection()
@@ -44,7 +51,7 @@ def get_rooms_by_hotel(hotel_id):
     conn.close()
     return jsonify(rooms)
 
-# 3. Make a reservation
+# 3. Make a reservation (booking page)
 
 """
     TODO:
@@ -53,7 +60,7 @@ def get_rooms_by_hotel(hotel_id):
         - Yeni rezervasyonda guestid'nin atanması falan lazım guest bilgilerini nasıl aktarıcaz ordan?
 """
 
-@app.route('/reservations', methods=['POST'])
+@app.route('/booking/reservations', methods=['POST'])
 def make_reservation():
     data = request.json
     conn = get_db_connection()
