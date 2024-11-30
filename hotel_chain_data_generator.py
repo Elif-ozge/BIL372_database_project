@@ -39,7 +39,7 @@ try:
     conn = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="Alltoowel13/", # append your own password
+        password="123z168*", # append your own password
         database="hotel_chain"
     )
     print("Database connection successful!")
@@ -52,7 +52,7 @@ except mysql.connector.Error as err:
 conn = mysql.connector.connect(
     host="localhost",      # MySQL sunucu adresi (örneğin: "127.0.0.1")
     user="root",           # MySQL kullanıcı adı
-    password="Alltoowel13/",   # append your mysql user password
+    password="123z168*",   # append your mysql user password
     database="hotel_chain" # Kullanılacak veritabanı adı
 )
 cursor = conn.cursor()
@@ -197,19 +197,26 @@ conn.commit()  # Commit here
         - şimdilik ellemedim gptye resim ürettirme kısmını, random şuanlık üretiliyor resimler
 """
 # RoomImages verilerini ekleme
-room_images = []
-hotel_ids = [1, 2, 3]  # sırasıyla dubai, maldives, switzerland
+room_images = [
+    (1, "images/dubai-2.png", 1),
+    (2, "images/dubai-3.png", 1),
+    (3, "images/dubai-4.png", 1),
+    (4, "images/maldives-2.png", 2),
+    (5, "images/maldives-3.png", 2),
+    (6, "images/maldives-4.png", 2),
+    (7, "images/switzerland-2.png", 3),
+    (8, "images/switzerland-3.png", 3),
+    (9, "images/switzerland-4.png", 3)
+]
 
-for hotel_id in hotel_ids:
-    for i in range(3):  # 3 images per hotel
-        img_data = faker.file_path(extension="jpg")
-        img_id = (hotel_id - 1) * 3 + i  # Generate a unique image ID for each image
-        room_images.append((img_id, img_data, hotel_id))  # Add to the list with associated hotel ID
-
+# RoomImages tablosuna verileri ekle
 cursor.executemany("INSERT IGNORE INTO RoomImages (ImgID, ImgData, OtelID) VALUES (%s, %s, %s)", room_images)
 
-# Commit the changes to the database
+# Değişiklikleri kaydet
 conn.commit()
+
+print("RoomImages tablosu başarıyla dolduruldu.")
+
 
 
 
