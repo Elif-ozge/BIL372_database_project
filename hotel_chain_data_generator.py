@@ -39,7 +39,7 @@ try:
     conn = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="123z168*", # append your own password
+        password="Alltoowell13/", # append your own password
         database="hotel_chain"
     )
     print("Database connection successful!")
@@ -52,7 +52,7 @@ except mysql.connector.Error as err:
 conn = mysql.connector.connect(
     host="localhost",      # MySQL sunucu adresi (örneğin: "127.0.0.1")
     user="root",           # MySQL kullanıcı adı
-    password="123z168*",   # append your mysql user password
+    password="Alltoowell13/",   # append your mysql user password
     database="hotel_chain" # Kullanılacak veritabanı adı
 )
 cursor = conn.cursor()
@@ -235,6 +235,11 @@ otel_ids = {"Dubai": 1, "Maldives": 2, "Switzerland": 3}
 
 room_id_counter = 1
 rooms = []
+dubai_images = {1: 1, 2: 2, 3: 3}
+maldives_images = {1: 4, 2: 5, 3: 6}
+switzerland_images = {1: 7, 2: 8, 3: 9}
+
+
 
 for location, types in room_count.items():
     print(location + "    ")
@@ -242,19 +247,23 @@ for location, types in room_count.items():
         print(max_occupancy + "   ")
         for _ in range(count):
             print(0)
+            room_type_id = int(max_occupancy) - 1  # Doğrudan max_occupancy yerine RoomTypeID kullanıyoruz
             if(location == "Dubai"):
                 room_id = f"D{room_id_counter:03d}"
+                room_img_id = dubai_images[room_type_id]
             elif(location == "Maldives"):
                 room_id = f"M{room_id_counter:03d}"
+                room_img_id = maldives_images[room_type_id]
             elif(location == "Switzerland"):
                 room_id = f"S{room_id_counter:03d}"
+                room_img_id = switzerland_images[room_type_id]
             room_number = random.randint(100, 999)
-            room_type_id = int(max_occupancy) -1   # Doğrudan max_occupancy yerine RoomTypeID kullanıyoruz
+
             if room_type_id not in [1, 2, 3]:  # RoomType tablosunda geçerli olup olmadığını kontrol edin
                 continue
             price = prices[location][max_occupancy]
             status = random.choice([0, 1])  # Available or not
-            room_img_id = random.randint(0,2)
+            #room_img_id = random.randint(0,2) # BURASI SIKINTILI KISIM
             otel_id = otel_ids[location]
             rooms.append((room_id, room_number, room_type_id, price, status, room_img_id, otel_id))
             room_id_counter += 1
