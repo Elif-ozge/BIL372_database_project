@@ -21,7 +21,7 @@ def booking():
 db_config = {
     "host": "localhost",
     "user": "root",
-    "password": "***",  # Replace with your MySQL password
+    "password": "Alltoowell13/",  # Replace with your MySQL password
     "database": "hotel_chain"
 }
 
@@ -45,7 +45,7 @@ def get_hotels():
 def get_rooms_by_hotel(hotel_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    query = "SELECT * FROM Rooms WHERE OtelID = %s"
+    query = "SELECT * FROM Rooms join roomtype on rooms.roomtypeid=roomtype.roomtypeid WHERE OtelID = %s"
     cursor.execute(query, (hotel_id,))
     rooms = cursor.fetchall()
     conn.close()

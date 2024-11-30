@@ -41,7 +41,7 @@ async function fetchRooms(hotelId) {
                 roomCard.innerHTML = `
                     <h4>Room Number: ${room.RoomNumber}</h4>
                     <p>Price: $${room.Price}</p>
-                    <p>Type: ${room.RoomTypeID.Type}</p>
+                    <p>Type: ${room.Type}</p>
 
                 `;
 
@@ -51,7 +51,7 @@ async function fetchRooms(hotelId) {
                 
                 // Attach an event listener to the button
                 bookNowButton.addEventListener('click', function() {
-                    redirectToBookingPage(room.RoomID,room.RoomNumber,room.price); // Call the bookRoom function with the room ID
+                    redirectToBookingPage(room.RoomID,room.RoomNumber,room.Price); // Call the bookRoom function with the room ID
                 });
 
                 roomCard.appendChild(bookNowButton);

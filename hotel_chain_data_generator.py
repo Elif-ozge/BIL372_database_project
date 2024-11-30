@@ -39,7 +39,7 @@ try:
     conn = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="***", # append your own password
+        password="Alltoowel13/", # append your own password
         database="hotel_chain"
     )
     print("Database connection successful!")
@@ -52,7 +52,7 @@ except mysql.connector.Error as err:
 conn = mysql.connector.connect(
     host="localhost",      # MySQL sunucu adresi (örneğin: "127.0.0.1")
     user="root",           # MySQL kullanıcı adı
-    password="***",   # append your mysql user password
+    password="Alltoowel13/",   # append your mysql user password
     database="hotel_chain" # Kullanılacak veritabanı adı
 )
 cursor = conn.cursor()
