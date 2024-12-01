@@ -55,23 +55,6 @@ document.addEventListener("DOMContentLoaded", function() {
             alert("Please fill out all fields.");
             return;
         }
-        const guestData = {
-            name: guestName,  // Get RoomID from sessionStorage
-            email: guestEmail,
-            phone: null,
-            guesttypeid: '${1}',
-            ssn: null
-        };
-
-            // Send the reservation data to your Flask backend
-            const response1 = await fetch(`${API_BASE_URL}/booking/guest/insert`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(guestData),
-            });
-        const guest = await response1.json();
-        console.log(guest)
-
         ///önce guesti guests tableına ekleyip sonra reservation yapmalıyız aksi takdirde forign key ihlali oluyor.
         // çünkü db de  biz reservationdaki guest ıd yi guests deki guest ıd ye bağladık
 
@@ -86,6 +69,12 @@ document.addEventListener("DOMContentLoaded", function() {
         };
 
         try {
+            const response1 = await fetch(`${API_BASE_URL}/booking/guest/insert?name=${guestName}&email=${guestEmail}&phone=${null}&guesttypeid=${1}&ssn=${null}`, {
+                method: 'POST', // Explicitly specify the POST method
+            });            
+            const guest = await response1.json();
+            console.log(guest)
+            
             // Send the reservation data to your Flask backend
             const response2 = await fetch(`${API_BASE_URL}/booking/reservations`, {
                 method: 'POST',
