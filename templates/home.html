@@ -31,6 +31,9 @@
             border: none;
             cursor: pointer;
         }
+        .date-picker-container {
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -38,6 +41,12 @@
         <h1>Hotel Reservation System</h1>
     </header>
     <div class="container">
+        <div class="date-picker-container">
+            <label for="checkin-date">Check-in Date:</label>
+            <input type="date" id="checkin-date" name="checkin-date">
+            <label for="checkout-date">Check-out Date:</label>
+            <input type="date" id="checkout-date" name="checkout-date">
+        </div>
         <section id="hotels">
             <h2>Available Hotels</h2>
             <div id="hotel-list"></div>

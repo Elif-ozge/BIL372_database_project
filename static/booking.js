@@ -5,6 +5,23 @@ document.addEventListener("DOMContentLoaded", function() {
     const roomNumber = sessionStorage.getItem('roomNumber');
     const price = sessionStorage.getItem('price');
     const roomId = sessionStorage.getItem('roomId'); // Room ID
+    const hotelId = sessionStorage.getItem('hotelID'); // Room ID
+
+    console.log(hotelId)
+    // Format date as mm/dd/yyyy and display in a separate element if needed
+    function formatDateForDisplay(dateString) {
+        const [year, month, day] = dateString.split('-');
+        return `${month}/${day}/${year}`;
+    }
+
+    // Example usage
+    const formattedCheckinDate = formatDateForDisplay(sessionStorage.getItem('CheckinDate'));
+    const formattedCheckoutDate = formatDateForDisplay(sessionStorage.getItem('CheckoutDate'));
+
+    // Display formatted date somewhere on your page
+    document.getElementById('checkinDate').value = formattedCheckinDate;
+    document.getElementById('checkoutDate').value = formattedCheckoutDate;
+
 
     // Populate the form fields with the room data
     document.getElementById('roomNumber').value = roomNumber;
@@ -15,8 +32,7 @@ document.addEventListener("DOMContentLoaded", function() {
     bookingForm.addEventListener('submit', async function(event) {
         event.preventDefault();  // Prevent the default form submission
 
-        const checkinDate = document.getElementById('checkinDate').value;
-        const checkoutDate = document.getElementById('checkoutDate').value;
+
         const guestName = document.getElementById('guestName').value;
         const guestEmail = document.getElementById('guestEmail').value;
 

@@ -21,7 +21,7 @@ def booking():
 db_config = {
     "host": "localhost",
     "user": "root",
-    "password": "***",  # Replace with your MySQL password
+    "password": "ozgeninsqlvadisi",  # Replace with your MySQL password
     "database": "hotel_chain"
 }
 
@@ -125,8 +125,9 @@ def cancel_reservation(reservation_id):
     return jsonify(response)
 
 # 6. Get available rooms for a date range
-@app.route('/rooms/availability', methods=['GET'])
-def check_room_availability():
+@app.route('/hotels/<int:hotel_id>/rooms/available', methods=['GET'])
+def check_room_availability(hotel_id):
+    
     checkin_date = request.args.get('checkin_date')
     checkout_date = request.args.get('checkout_date')
     conn = get_db_connection()
@@ -135,15 +136,17 @@ def check_room_availability():
     SELECT r.RoomID, r.RoomNumber, rt.Type AS RoomType, r.Price
     FROM Rooms r
     JOIN RoomType rt ON r.RoomTypeID = rt.RoomTypeID
-    WHERE r.Status = 1 AND r.RoomID NOT IN (
+    JOIN Reservations re on r.RoomID = re.RoomID
+    WHERE r.Status = 1 AND r.OtelID = %s AND r.RoomID NOT IN (
         SELECT RoomID FROM Reservations
         WHERE DateCheckin < %s AND DateCheckout > %s
     )
     """
-    cursor.execute(query, (checkout_date, checkin_date))
+    cursor.execute(query, (hotel_id, checkin_date, checkout_date))
     available_rooms = cursor.fetchall()
     conn.close()
     return jsonify(available_rooms)
+
 
 # 7. Submit a review
 
