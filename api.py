@@ -210,6 +210,7 @@ def insert_new_guest():
     VALUES (%s, %s, %s, %s, %s)
     """
     cursor.executemany(query, guest_info)
+    conn.commit()
 
     fetch_query = """SELECT * FROM Guests
     ORDER BY GuestID DESC
