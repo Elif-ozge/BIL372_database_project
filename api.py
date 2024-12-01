@@ -21,7 +21,7 @@ def booking():
 db_config = {
     "host": "localhost",
     "user": "root",
-    "password": "ozgeninsqlvadisi",  # Replace with your MySQL password
+    "password": "Alltoowell13/",  # Replace with your MySQL password
     "database": "hotel_chain"
 }
 
@@ -176,6 +176,19 @@ def submit_review():
     finally:
         conn.close()
     return jsonify(response)
+
+# 8. Get the GuestID of the last guest in the whole guest list
+@app.route('/guest/id', methods=['GET'])
+def get_last_guest_id():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    query = """
+    select max(guestid) as LastID from guests
+    """
+    cursor.execute(query)
+    last_guest_id = cursor.fetchall()[0]
+    conn.close()
+    return jsonify(last_guest_id)
 
 # Run the app
 if __name__ == '__main__':
