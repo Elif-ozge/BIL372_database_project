@@ -44,6 +44,7 @@ async function fetchRooms(hotelId) {
         roomList.innerHTML = ''; // Clear previous content
 
         rooms.forEach(room => {
+            console.log(room);
                 const roomCard = document.createElement('div');
                 roomCard.className = 'room-card';
                 roomCard.innerHTML = `
@@ -52,6 +53,19 @@ async function fetchRooms(hotelId) {
                     <p>Type: ${room.RoomType}</p>
 
                 `;
+                 // Room image
+                const roomImage = document.createElement('img');
+                if (room.RoomID.startsWith('D')) {
+                    roomImage.src = `/static/images/dubai-${room.RoomTypeID + 1}.png`;
+                } else if (room.RoomID.startsWith('M')) {
+                    roomImage.src = `/static/images/maldives-${room.RoomTypeID + 1}.png`;
+                } else if (room.RoomID.startsWith('S')) {
+                    roomImage.src = `/static/images/switzerland-${room.RoomTypeID + 1}.png`;
+                }
+                roomImage.alt = `Image of room ${room.RoomNumber}`;
+                roomImage.style.width = '250px'; // Set image width
+                roomImage.style.height = 'auto'; // Maintain aspect ratio
+
 
                 // Create the "Book Now" button dynamically
                 const bookNowButton = document.createElement('button');
@@ -63,7 +77,7 @@ async function fetchRooms(hotelId) {
                 });
 
                 roomCard.appendChild(bookNowButton);
-
+                roomCard.appendChild(roomImage);
                 roomList.appendChild(roomCard);
         });
     } catch (error) {

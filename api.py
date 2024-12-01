@@ -133,7 +133,7 @@ def check_room_availability(hotel_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     query = """
-    SELECT r.RoomID, r.RoomNumber, rt.Type AS RoomType, r.Price
+    SELECT r.RoomID, r.RoomNumber, rt.Type AS RoomType, r.Price,r.RoomTypeID
     FROM Rooms r
     JOIN RoomType rt ON r.RoomTypeID = rt.RoomTypeID
     JOIN Reservations re on r.RoomID = re.RoomID

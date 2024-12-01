@@ -34,6 +34,27 @@
         .date-picker-container {
             margin-bottom: 1rem;
         }
+        .room-card {
+            display: flex; /* Arrange content and image horizontally */
+            justify-content: space-between; /* Space between content and image */
+            align-items: center; /* Center items vertically */
+            border: 1px solid #ccc; /* Optional: Add a border */
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px; /* Rounded corners */
+            max-width: 600px; /* Limit card width for better alignment */
+        }
+        
+        .room-card h4, .room-card p {
+            margin: 0.5rem 0; /* Add spacing between elements */
+        }
+        
+        .room-image {
+            max-width: 150px; /* Set maximum width */
+            height: auto; /* Maintain aspect ratio */
+            margin-left: 16px; /* Add spacing between content and image */
+            border-radius: 8px; /* Optional: Rounded corners */
+        }
     </style>
 </head>
 <body>
@@ -53,7 +74,9 @@
         </section>
         <section id="rooms">
             <h2>Rooms in Selected Hotel</h2>
-            <div id="room-list"></div>
+            <div id="room-list">
+                <img src="room-image.jpg" alt="Room Image" class="room-image">
+            </div>
         </section>
     </div>
 
