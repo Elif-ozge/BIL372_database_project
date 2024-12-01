@@ -39,6 +39,11 @@ async function fetchRooms(hotelId) {
         const response = await fetch(`${API_BASE_URL}/hotels/${hotelId}/rooms/available?checkin_date=${checkinDate}&checkout_date=${checkoutDate}`);
         const rooms = await response.json();
 
+        const response2 = await fetch(`${API_BASE_URL}/guest/id`);
+        const last_guest_id = await response2.json();
+
+        guestId = last_guest_id.LastID + 1;
+        console.log(guestId)
 
         const roomList = document.getElementById('room-list');
         roomList.innerHTML = ''; // Clear previous content
@@ -73,7 +78,7 @@ async function fetchRooms(hotelId) {
                 
                 // Attach an event listener to the button
                 bookNowButton.addEventListener('click', function() {
-                    redirectToBookingPage(room.RoomID,room.RoomNumber,room.price, checkinDate, checkoutDate,hotelId); // Call the bookRoom function with the room ID
+                    redirectToBookingPage(room.RoomID,room.RoomNumber,room.price, checkinDate, checkoutDate,hotelId,guestId); // Call the bookRoom function with the room ID
                 });
 
                 roomCard.appendChild(bookNowButton);
@@ -85,7 +90,7 @@ async function fetchRooms(hotelId) {
     }
 }
 
-function redirectToBookingPage(roomId, roomNumber,price, dateCheckin, dateCheckout,hotelId) {
+function redirectToBookingPage(roomId, roomNumber,price, dateCheckin, dateCheckout,hotelId,guestId) {
     // Store room details in sessionStorage
     sessionStorage.setItem('roomId', roomId);
     sessionStorage.setItem('roomNumber', roomNumber);
@@ -93,6 +98,7 @@ function redirectToBookingPage(roomId, roomNumber,price, dateCheckin, dateChecko
     sessionStorage.setItem('CheckinDate', dateCheckin);
     sessionStorage.setItem('CheckoutDate', dateCheckout);
     sessionStorage.setItem('hotelID', hotelId);
+    sessionStorage.setItem('GuestId', guestId);
 
 
 

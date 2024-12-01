@@ -5,18 +5,21 @@ document.addEventListener("DOMContentLoaded", function() {
     const roomNumber = sessionStorage.getItem('roomNumber');
     const price = sessionStorage.getItem('price');
     const roomId = sessionStorage.getItem('roomId'); // Room ID
-    const hotelId = sessionStorage.getItem('hotelID'); // Room ID
+    const hotelId = sessionStorage.getItem('hotelID'); 
+    const guestId = sessionStorage.getItem('GuestId'); 
 
-    console.log(hotelId)
     // Format date as mm/dd/yyyy and display in a separate element if needed
     function formatDateForDisplay(dateString) {
         const [year, month, day] = dateString.split('-');
         return `${month}/${day}/${year}`;
     }
 
+    const checkinDate = sessionStorage.getItem('CheckinDate');
+    const checkoutDate = sessionStorage.getItem('CheckoutDate');
+
     // Example usage
-    const formattedCheckinDate = formatDateForDisplay(sessionStorage.getItem('CheckinDate'));
-    const formattedCheckoutDate = formatDateForDisplay(sessionStorage.getItem('CheckoutDate'));
+    const formattedCheckinDate = formatDateForDisplay(checkinDate);
+    const formattedCheckoutDate = formatDateForDisplay(checkoutDate);
 
     // Display formatted date somewhere on your page
     document.getElementById('checkinDate').value = formattedCheckinDate;
@@ -27,6 +30,8 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('roomNumber').value = roomNumber;
     document.getElementById('price').value = price;
 
+  
+
     // Handle the form submission
     const bookingForm = document.getElementById('bookingForm');
     bookingForm.addEventListener('submit', async function(event) {
@@ -35,21 +40,32 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const guestName = document.getElementById('guestName').value;
         const guestEmail = document.getElementById('guestEmail').value;
+        const accommType = document.getElementById('accommodationType').value;
+        if(accommType ==  'Bed & Breakfast')
+            accommTypeID = 1
+        else if(accommType ==  'Full Pension')
+            accommTypeID = 2
+        else if(accommType ==  'Half Pension')
+            accommTypeID = 3
+        console.log(accommTypeID)
 
+        baseReservation  = " not defined"
         // Validate the form inputs
         if (!checkinDate || !checkoutDate || !guestName || !guestEmail) {
             alert("Please fill out all fields.");
             return;
         }
+        ///önce guesti guests tableına ekleyip sonra reservation yapmalıyız aksi takdirde forign key ihlali oluyor.
+        // çünkü db de  biz reservationdaki guest ıd yi guests deki guest ıd ye bağladık
 
         const reservationData = {
             room_id: roomId,  // Get RoomID from sessionStorage
+            guest_id: guestId ,
             checkin_date: checkinDate,
             checkout_date: checkoutDate,
-            guest_name: guestName,
-            guest_email: guestEmail,
-
-            price: price,
+            base_reservation : baseReservation,
+            accommodation_type_id: accommTypeID,
+            otel_id: hotelId
         };
 
         try {

@@ -21,7 +21,7 @@ def booking():
 db_config = {
     "host": "localhost",
     "user": "root",
-    "password": "Alltoowell13/",  # Replace with your MySQL password
+    "password": "ozgeninsqlvadisi",  # Replace with your MySQL password
     "database": "hotel_chain"
 }
 
@@ -183,7 +183,7 @@ def get_last_guest_id():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     query = """
-    select max(guestid) as LastID from guests
+    select max(guestid) as LastID from Guests
     """
     cursor.execute(query)
     last_guest_id = cursor.fetchall()[0]
