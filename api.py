@@ -21,7 +21,7 @@ def booking():
 db_config = {
     "host": "localhost",
     "user": "root",
-    "password": "Alltoowell13/",  # Replace with your MySQL password
+    "password": "ozgeninsqlvadisi",  # Replace with your MySQL password
     "database": "hotel_chain"
 }
 
@@ -192,7 +192,7 @@ def get_last_guest_id():
 
 
 # 9. Insert new guest to the table
-@app.route('/guest/insert', methods=['POST'])
+@app.route('/booking/guest/insert', methods=['POST'])
 def insert_new_guest():
     guest_info = []
     name = request.args.get('name')
