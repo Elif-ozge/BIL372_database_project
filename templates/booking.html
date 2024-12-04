@@ -41,22 +41,22 @@
         <form id="bookingForm">
             <label for="roomNumber">Room Number:</label>
             <input type="text" id="roomNumber" name="roomNumber" readonly><br>
-
+    
             <label for="price">Price:</label>
             <input type="text" id="price" name="price" readonly><br>
-
+    
             <label for="checkinDate">Check-in Date:</label>
             <input type="text" id="checkinDate" name="checkinDate" readonly><br>
-
+    
             <label for="checkoutDate">Check-out Date:</label>
             <input type="text" id="checkoutDate" name="checkoutDate" readonly><br>
-
+    
             <label for="guestName">Guest Name:</label>
             <input type="text" id="guestName" name="guestName" required><br>
-
+    
             <label for="guestEmail">Guest Email:</label>
             <input type="email" id="guestEmail" name="guestEmail" required><br>
-
+    
             <label for="accommodationType">Accommodation Type:</label>
             <select id="accommodationType" name="accommodationType" required>
                 <option value="" disabled selected>Select Accommodation Type</option>
@@ -64,11 +64,26 @@
                 <option value="Bed & Breakfast">Bed & Breakfast</option>
                 <option value="Half Pension">Half Pension</option>
             </select><br>
-
-
+    
+            <label for="totalPrice">Total Price:</label>
+            <input type="text" id="totalPrice" name="totalPrice" readonly><br>
+    
+            <label for="paymentMethod">Payment Method:</label>
+            <select id="paymentMethod" name="paymentMethod" required>
+                <option value="" disabled selected>Select Payment Method</option>
+                <option value="Cash">Cash</option>
+                <option value="Card">Credit Card</option>
+            </select><br>
+    
+            <div id="cardDetails" style="display: none;">
+                <label for="cardNumber">Card Number(please enter 12 digits):</label>
+                <input type="text" id="cardNumber" name="cardNumber" maxlength="12" pattern="\d{12}" title="Please enter a 12-digit card number"><br>
+            </div>
+    
             <button type="submit">Confirm Booking</button>
         </form>
     </div>
+    
 
     <!-- Link to the booking.js file -->
     <script src="{{ url_for('static', filename='booking.js') }}"></script>

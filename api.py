@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, jsonify
 import mysql.connector
 import os
+from datetime import datetime
+
 
 # have flask downloaded
 
@@ -16,6 +18,10 @@ def home():
 @app.route('/booking')
 def booking():
     return render_template('booking.html')  # Render booking.html
+
+@app.route('/reviews')
+def reviews():
+    return render_template('reviews.html')
 
 # Database connection
 db_config = {
@@ -75,10 +81,27 @@ def make_reservation():
             data['base_reservation'], data['accommodation_type_id'], data['otel_id']
         ))
         conn.commit()
-        response = {"message": "Reservation created successfully!", "reservation_id": cursor.lastrowid}
+        
+        # Prepare payment data
+        payment_query = """
+        INSERT INTO Payments (ReservationID, Amount, PaymentDate, PaymentMethod, Status)
+        VALUES (%s, %s, %s, %s, %s)
+        """
+        
+        reservation_id = cursor.lastrowid
+
+
+        payment_date = datetime.now().strftime('%Y-%m-%d')  # Current date
+        payment_status = 1  # Default status (e.g., unpaid)
+        cursor.execute(payment_query, (
+            reservation_id, data['total_price'], payment_date, data['payment_method'], payment_status
+        ))
+
+        conn.commit()
+        response = {"success": True, "message": "Reservation created successfully!", "reservation_id": cursor.lastrowid}
     except Exception as e:
         conn.rollback()
-        response = {"error": str(e)}
+        response = {"success": False,"error": str(e)}
     finally:
         conn.close()
     return jsonify(response)
@@ -165,20 +188,21 @@ def submit_review():
         INSERT INTO Reviews (ReservationID, Rating, Comment, ReviewDate)
         VALUES (%s, %s, %s, %s)
         """
+        review_date = datetime.now().strftime('%Y-%m-%d')  # Current date
         cursor.execute(query, (
-            data['reservation_id'], data['rating'], data['comment'], data['review_date']
+            data['reservation_id'], data['rating'], data['comment'], review_date
         ))
         conn.commit()
-        response = {"message": "Review submitted successfully!", "review_id": cursor.lastrowid}
+        response = {"success": True,"message": "Review submitted successfully!", "review_id": cursor.lastrowid}
     except Exception as e:
         conn.rollback()
-        response = {"error": str(e)}
+        response = {"success": False,"error": str(e)}
     finally:
         conn.close()
     return jsonify(response)
 
 # 8. Get the GuestID of the last guest in the whole guest list
-@app.route('/guest/id', methods=['GET'])
+@app.route('/booking/guest/id', methods=['GET'])
 def get_last_guest_id():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -216,7 +240,7 @@ def insert_new_guest():
     ORDER BY GuestID DESC
     LIMIT 1;"""
     cursor.execute(fetch_query)
-
+    
     inserted_guest = cursor.fetchall()[0]
     conn.close()
     return jsonify(inserted_guest)

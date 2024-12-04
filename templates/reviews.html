@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Hotel Reservation System</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+            }
+            header {
+                background-color: #007bff;
+                color: white;
+                padding: 1rem;
+                text-align: center;
+            }
+            .container {
+                padding: 2rem;
+            }
+            .button {
+                padding: 0.5rem 1rem;
+                background-color: #007bff;
+                color: white;
+                border: none;
+                cursor: pointer;
+            }
+            
+        </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Thank You for Your Reservation!</h1>
+        <p>We hope you enjoyed the booking process. Please leave a review to help us improve our service.</p>
+
+        <form id="review-form">
+            <div class="form-group">
+                <label for="reservationId">Reservation ID:</label>
+                <input type="text" id="reservationId" name="reservationId" readonly><br>
+            </div>
+
+            <div class="form-group">
+                <label for="rating">Rating (1-5):</label>
+                <select id="rating" name="rating" required>
+                    <option value="" disabled selected>Select your rating</option>
+                    <option value="1">1 - Very Poor</option>
+                    <option value="2">2 - Poor</option>
+                    <option value="3">3 - Average</option>
+                    <option value="4">4 - Good</option>
+                    <option value="5">5 - Excellent</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="comments">Comments:</label>
+                <textarea id="comments" name="comments" rows="5" placeholder="Write your feedback here..." required></textarea>
+            </div>
+
+            <button type="submit">Submit Review</button>
+        </form>
+
+        <p id="feedback-message" style="display: none;"></p>
+    </div>
+    <script src="{{ url_for('static', filename='reviews.js') }}"></script>
+</body>
+</html>
