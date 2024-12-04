@@ -98,7 +98,7 @@ def make_reservation():
         ))
 
         conn.commit()
-        response = {"success": True, "message": "Reservation created successfully!", "reservation_id": cursor.lastrowid}
+        response = {"success": True, "message": "Reservation created successfully!", "reservation_id": reservation_id}
     except Exception as e:
         conn.rollback()
         response = {"success": False,"error": str(e)}
@@ -218,33 +218,43 @@ def get_last_guest_id():
 # 9. Insert new guest to the table
 @app.route('/booking/guest/insert', methods=['POST'])
 def insert_new_guest():
-    guest_info = []
-    name = request.args.get('name')
-    email = request.args.get('email')
-    phone = request.args.get('phone')
-    guesttypeid = request.args.get('guesttypeid')
-    ssn = request.args.get('ssn')
+    try:
+        guest_info = []
+        name = request.args.get('name')
+        email = request.args.get('email')
+        phone = request.args.get('phone')
+        guesttypeid = request.args.get('guesttypeid')
+        ssn = request.args.get('ssn')
 
-    guest_info.append((name, email, phone, guesttypeid, ssn))
+        guest_info.append((name, email, phone, guesttypeid, ssn))
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = """
+        INSERT INTO Guests (Name, Email, Phone, GuestTypeID, SSN)
+        VALUES (%s, %s, %s, %s, %s)
+        """
+        cursor.executemany(query, guest_info)
+        conn.commit()
 
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    query = """
-    INSERT INTO Guests (Name, Email, Phone, GuestTypeID, SSN)
-    VALUES (%s, %s, %s, %s, %s)
-    """
-    cursor.executemany(query, guest_info)
-    conn.commit()
-
-    fetch_query = """SELECT * FROM Guests
-    ORDER BY GuestID DESC
-    LIMIT 1;"""
-    cursor.execute(fetch_query)
-    
-    inserted_guest = cursor.fetchall()[0]
-    conn.close()
-    return jsonify(inserted_guest)
-
+        fetch_query = """SELECT * FROM Guests
+        ORDER BY GuestID DESC
+        LIMIT 1;"""
+        cursor.execute(fetch_query)
+        
+        inserted_guest = cursor.fetchall()[0]
+        conn.close()
+        return jsonify({
+                    "success": True,
+                    "message": "Guest inserted successfully!",
+                    "guest": inserted_guest
+                })
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        return jsonify({
+                "success": False,
+                "message": str(e)
+            })
 # Run the app
 if __name__ == '__main__':
     app.run(debug=True)

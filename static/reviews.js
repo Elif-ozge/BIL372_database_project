@@ -3,7 +3,7 @@ const API_BASE_URL = "http://127.0.0.1:5000";
 const reservationId = sessionStorage.getItem('reservationId');
 if (reservationId != null) {
     document.getElementById('reservationId').value = reservationId;
-    console.log(reservationId)
+    console.log("reserv_id review : " + reservationId)
 } else {
     console.error("Reservation ID not found in sessionStorage.");
 }    console.log(reservationId)

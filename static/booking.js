@@ -100,48 +100,49 @@ document.addEventListener("DOMContentLoaded", function() {
             cache: 'no-store', // Ensures the fetch API bypasses the cache
         });
         
-        const last_guest_id = await response2.json();
-        guestId = last_guest_id.LastID + 1;
 
-
-
-        const reservationData = {
-            room_id: roomId,  // Get RoomID from sessionStorage
-            guest_id: guestId ,
-            checkin_date: checkinDate,
-            checkout_date: checkoutDate,
-            base_reservation : baseReservation,
-            accommodation_type_id: accommTypeID,
-            otel_id: hotelId,
-            total_price: totalPrice,
-            payment_method: paymentMethod
-        };
+    
 
         try {
             const response1 = await fetch(`${API_BASE_URL}/booking/guest/insert?name=${guestName}&email=${guestEmail}&phone=${null}&guesttypeid=${1}&ssn=${null}`, {
                 method: 'POST', // Explicitly specify the POST method
-            });            
-            const guest = await response1.json();
-            console.log(guest)
-            
-            // Send the reservation data to your Flask backend
-            const response2 = await fetch(`${API_BASE_URL}/booking/reservations`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(reservationData),
-            });
+            });     
 
-            const result = await response2.json();
-            if (result.success) {
-                alert("Room booked successfully!");
-                // Store the reservation ID in sessionStorage
-                sessionStorage.setItem('reservationId', result.reservation_id);
-                console.log(result.reservation_id)
-                // Optionally redirect to a review page
-                window.location.href = '/reviews'; 
-            } else {
-                alert("Booking failed. Please try again.");
+            const guest = await response1.json();
+            guestId = guest.guest.GuestID
+
+            if(guest.success){
+                const reservationData = {
+                    room_id: roomId,  // Get RoomID from sessionStorage
+                    guest_id: guestId ,
+                    checkin_date: checkinDate,
+                    checkout_date: checkoutDate,
+                    base_reservation : baseReservation,
+                    accommodation_type_id: accommTypeID,
+                    otel_id: hotelId,
+                    total_price: totalPrice,
+                    payment_method: paymentMethod
+                };
+
+                const response2 = await fetch(`${API_BASE_URL}/booking/reservations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(reservationData),
+                });
+    
+                const result = await response2.json();
+                if (result.success) {
+                    alert("Room booked successfully!");
+                    // Store the reservation ID in sessionStorage
+                    sessionStorage.setItem('reservationId', result.reservation_id);
+                    console.log("reserv_id: " + result.reservation_id)
+                    // Optionally redirect to a review page
+                    window.location.href = '/reviews'; 
+                } else {
+                    alert("Booking failed. Please try again.");
+                }
             }
+                       
         } catch (error) {
             console.error("Error booking room:", error);
             alert("An error occurred. Please try again later.");
